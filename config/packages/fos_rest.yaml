@@ -18,3 +18,5 @@ fos_rest:
         include_format:  false
     exception:
         enabled: true
+    body_converter:
+        enabled: true

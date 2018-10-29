@@ -13,7 +13,7 @@ class OrdersController extends AbstractController
 {
     /**
      * @View
-     * @Get("/hello")
+     * @Get("/api/hello")
      */
     public function helloAction()
     {

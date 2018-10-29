@@ -4,4 +4,4 @@ fos_user:
   from_email:
     address: 'noreply@gficoffee.com'
     sender_name: 'No Reply'
-  user_class: 'AppBundle\Entity\User'
+  user_class: 'App\Entity\User'
