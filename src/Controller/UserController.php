@@ -46,6 +46,7 @@ class UserController extends AbstractController
             /** @var User $user */
             $user = $this->userManager->createUser();
 
+            $user->setRoles(['ROLE_USER']);
             $user->setEnabled(true);
             $user->setPlainPassword($data->getPassword());
             $user->setUsername($data->getEmail());
