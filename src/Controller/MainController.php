@@ -3,20 +3,19 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
-
-class OrdersController extends AbstractController
+class MainController extends AbstractController
 {
     /**
      * @View
-     * @Get("/hello")
+     * @Route("/")
      */
-    public function helloAction()
+    public function rootAction()
     {
-        return new JsonResponse('hello world');
+        return new JsonResponse('It works');
     }
 }
