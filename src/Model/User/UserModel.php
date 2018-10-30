@@ -31,20 +31,6 @@ class UserModel implements UserInterface
     /**
      * @Type("string")
      *
-     * @var string|null
-     */
-    private $name;
-
-    /**
-     * @Type("string")
-     *
-     * @var string|null
-     */
-    private $firstName;
-
-    /**
-     * @Type("string")
-     *
      * @var string
      */
     private $email;
@@ -115,38 +101,6 @@ class UserModel implements UserInterface
     public function setUsername(string $username)
     {
         $this->username = $username;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName(?string $name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    /**
-     * @param null|string $firstName
-     */
-    public function setFirstName(?string $firstName): void
-    {
-        $this->firstName = $firstName;
     }
 
     /**
