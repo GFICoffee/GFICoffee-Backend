@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Repository;
+
+use Doctrine\ORM\EntityRepository;
+use FOS\UserBundle\Model\UserInterface;
+
+class OrderRepository extends EntityRepository
+{
+    function findWaitingOrdersForUser (UserInterface $user)
+    {
+        $qb = $this->createQueryBuilder('e');
+        $qb->select('e')
+            ->leftJoin('e.user', 'u')
+            ->where('u.username = :username')
+            ->andWhere('e.isWaiting = :isWaiting')
+            ->setParameter('username', $user->getUsername())
+            ->setParameter('isWaiting', true);
+
+        $q = $qb->getQuery();
+        return $q->getResult();
+    }
+}

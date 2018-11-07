@@ -47,23 +47,23 @@ class Coffee
     protected $type;
 
     /**
-     * @var integer|null
+     * @var float|null
      * @ORM\Column(nullable=true, type="float")
      */
     protected $unitPrice;
 
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getUnitPrice(): ?int
+    public function getUnitPrice(): ?float
     {
         return $this->unitPrice;
     }
 
     /**
-     * @param int|null $unitPrice
+     * @param float|null $unitPrice
      */
-    public function setUnitPrice(?int $unitPrice): void
+    public function setUnitPrice(?float $unitPrice): void
     {
         $this->unitPrice = $unitPrice;
     }

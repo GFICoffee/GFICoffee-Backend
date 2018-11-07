@@ -8,8 +8,10 @@ use App\Entity\OrderedCoffee;
 use App\Entity\User;
 use App\Model\Coffee\CoffeeModel;
 use App\Model\Coffee\OrderDto;
+use App\Service\OrderService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -23,9 +25,14 @@ class OrdersController extends AbstractController
     /** @var EntityManagerInterface */
     private $em;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var OrderService */
+    private $orderService;
+
+    public function __construct(EntityManagerInterface $em,
+                                OrderService $orderService)
     {
         $this->em = $em;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -61,5 +68,28 @@ class OrdersController extends AbstractController
         $this->em->merge($order);
         $this->em->flush();
         return $order;
+    }
+
+    /**
+     * Récupère toutes les commandes en attente.
+     *
+     * @View()
+     * @Get("/api/orders/waiting")
+     *
+     * @param Request $request
+     * @param UserInterface $user
+     * @return OrderDto[]
+     */
+    public function waitingOrdersAction(Request $request, UserInterface $user)
+    {
+        $orderRepo = $this->em->getRepository(Order::class);
+        /** @var Order[] $orders */
+        $orders = $orderRepo->findWaitingOrdersForUser($user);
+
+        /** @var OrderDto[] $ordersDto */
+        $ordersDto = array_map(function (Order $order) {
+            return $this->orderService->convertToDto($order);
+        }, $orders);
+        return $ordersDto;
     }
 }
