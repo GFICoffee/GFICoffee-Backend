@@ -3,7 +3,6 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity
@@ -30,6 +29,28 @@ class Order
      * @ORM\OneToMany(targetEntity="App\Entity\OrderedCoffee", mappedBy="order", cascade={"all"})
      */
     protected $items;
+
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean")
+     */
+    protected $isWaiting = true;
+
+    /**
+     * @return bool
+     */
+    public function isWaiting(): bool
+    {
+        return $this->isWaiting;
+    }
+
+    /**
+     * @param bool $isWaiting
+     */
+    public function setIsWaiting(bool $isWaiting): void
+    {
+        $this->isWaiting = $isWaiting;
+    }
 
     /**
      * @return User|null
