@@ -1,7 +1,9 @@
 <?php
 namespace App\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity
@@ -23,7 +25,43 @@ class Order
     protected $user;
 
 
+    /**
+     * @var Collection|OrderedCoffee[]|null
+     * @ORM\OneToMany(targetEntity="App\Entity\OrderedCoffee", mappedBy="order", cascade={"all"})
+     */
     protected $items;
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User|null $user
+     */
+    public function setUser(?User $user): void
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return OrderedCoffee[]|Collection|null
+     */
+    public function getItems()
+    {
+        return $this->items;
+    }
+
+    /**
+     * @param OrderedCoffee[]|Collection|null $items
+     */
+    public function setItems($items): void
+    {
+        $this->items = $items;
+    }
 
     /**
      * @return mixed
