@@ -6,7 +6,6 @@ use App\Entity\Coffee;
 use App\Entity\Order;
 use App\Entity\OrderedCoffee;
 use App\Entity\User;
-use App\Model\Coffee\CoffeeModel;
 use App\Model\Coffee\OrderDto;
 use App\Service\OrderService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,6 +15,7 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -71,7 +71,7 @@ class OrdersController extends AbstractController
     }
 
     /**
-     * Récupère toutes les commandes en attente.
+     * Récupère toutes les commandes en attente de l'utilisateur courant.
      *
      * @View()
      * @Get("/api/orders/waiting")
@@ -85,6 +85,30 @@ class OrdersController extends AbstractController
         $orderRepo = $this->em->getRepository(Order::class);
         /** @var Order[] $orders */
         $orders = $orderRepo->findWaitingOrdersForUser($user);
+
+        /** @var OrderDto[] $ordersDto */
+        $ordersDto = array_map(function (Order $order) {
+            return $this->orderService->convertToDto($order);
+        }, $orders);
+        return $ordersDto;
+    }
+
+    /**
+     * Récupère toutes les commandes en attente.
+     *
+     * @View()
+     * @Get("/api/orders/waiting-all")
+     * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @param Request $request
+     * @param UserInterface $user
+     * @return OrderDto[]
+     */
+    public function allWaitingOrdersAction(Request $request, UserInterface $user)
+    {
+        $orderRepo = $this->em->getRepository(Order::class);
+        /** @var Order[] $orders */
+        $orders = $orderRepo->findWaitingOrders();
 
         /** @var OrderDto[] $ordersDto */
         $ordersDto = array_map(function (Order $order) {
