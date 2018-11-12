@@ -10,6 +10,7 @@ use App\Model\Coffee\OrderDto;
 use App\Service\OrderService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -144,5 +145,38 @@ class OrdersController extends AbstractController
         /** @var OrderDto $orderDto */
         $orderDto = $this->orderService->convertToDto($order);
         return $orderDto;
+    }
+
+    /**
+     * Valide toutes les commandes en attente.
+     *
+     * @View()
+     * @Post("/api/orders/waiting-all/validate")
+     * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @param Request $request
+     * @return OrderDto[]
+     */
+    public function validateAllWaitingOrdersAction(Request $request)
+    {
+        $orderRepo = $this->em->getRepository(Order::class);
+        /** @var Order[] $orders */
+        $orders = $orderRepo->findWaitingOrders();
+
+        $now = new \DateTime();
+        foreach ($orders as $order)
+        {
+            $order->setIsWaiting(false);
+            $order->setValidationDate($now);
+            $this->em->persist($order);
+        }
+
+        $this->em->flush();
+
+        /** @var OrderDto[] $ordersDto */
+        $ordersDto = array_map(function (Order $order) {
+            return $this->orderService->convertToDto($order, true);
+        }, $orders);
+        return $ordersDto;
     }
 }

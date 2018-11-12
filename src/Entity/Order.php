@@ -37,6 +37,28 @@ class Order
     protected $isWaiting = true;
 
     /**
+     * @var \DateTime|null
+     * @ORM\Column(nullable=true, type="datetime")
+     */
+    protected $validationDate;
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getValidationDate(): ?\DateTime
+    {
+        return $this->validationDate;
+    }
+
+    /**
+     * @param \DateTime|null $validationDate
+     */
+    public function setValidationDate(?\DateTime $validationDate): void
+    {
+        $this->validationDate = $validationDate;
+    }
+
+    /**
      * @return bool
      */
     public function isWaiting(): bool
