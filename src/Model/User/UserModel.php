@@ -63,8 +63,6 @@ class UserModel implements UserInterface
     {
         $this->id = $user->getId();
         $this->username = $user->getUsername();
-        $this->name = $user->getName();
-        $this->firstName = $user->getFirstName();
         $this->email = $user->getEmail();
         $this->enabled = $user->isEnabled();
         $this->superAdmin = $user->isSuperAdmin();

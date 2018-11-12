@@ -6,10 +6,11 @@ use App\Entity\Order;
 use App\Entity\OrderedCoffee;
 use App\Model\Coffee\CoffeeModel;
 use App\Model\Coffee\OrderDto;
+use App\Model\User\UserModel;
 
 class OrderService
 {
-    function convertToDto (Order $order): OrderDto
+    function convertToDto (Order $order, bool $showUser = false): OrderDto
     {
         $dto = new OrderDto();
         $dto->setId($order->getId());
@@ -27,6 +28,10 @@ class OrderService
 
             return $coffee;
         }, $order->getItems()->toArray()));
+
+        if ($showUser) {
+            $dto->setUser(new UserModel($order->getUser()));
+        }
 
         return $dto;
     }

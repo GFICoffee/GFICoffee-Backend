@@ -10,6 +10,7 @@ use App\Model\Coffee\OrderDto;
 use App\Service\OrderService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -101,10 +102,9 @@ class OrdersController extends AbstractController
      * @Security("has_role('ROLE_ADMIN')")
      *
      * @param Request $request
-     * @param UserInterface $user
      * @return OrderDto[]
      */
-    public function allWaitingOrdersAction(Request $request, UserInterface $user)
+    public function allWaitingOrdersAction(Request $request)
     {
         $orderRepo = $this->em->getRepository(Order::class);
         /** @var Order[] $orders */
@@ -112,8 +112,37 @@ class OrdersController extends AbstractController
 
         /** @var OrderDto[] $ordersDto */
         $ordersDto = array_map(function (Order $order) {
-            return $this->orderService->convertToDto($order);
+            return $this->orderService->convertToDto($order, true);
         }, $orders);
         return $ordersDto;
+    }
+
+    /**
+     * Supprime une commande.
+     *
+     * @View()
+     * @Delete("/api/orders/{id}", requirements={"id"="\d+"})
+     *
+     * @param Request $request
+     * @param UserInterface $user
+     * @param string $id
+     * @return OrderDto
+     */
+    public function deleteOrderAction(Request $request, UserInterface $user, string $id)
+    {
+        $orderRepo = $this->em->getRepository(Order::class);
+        /** @var Order $order */
+        $order = $orderRepo->find($id);
+
+        if ($order->getUser()->getUsername() !== $user->getUsername() && !in_array('ROLE_ADMIN', $user->getRoles())) {
+            throw new \Exception('Vous n\'avez pas le droit de supprimer cette commande.');
+        }
+
+        $this->em->remove($order);
+        $this->em->flush();
+
+        /** @var OrderDto $orderDto */
+        $orderDto = $this->orderService->convertToDto($order);
+        return $orderDto;
     }
 }

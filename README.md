@@ -1,3 +1,5 @@
+![MIT Licence](https://img.shields.io/badge/licence-GPL-green.svg)
+
 # GFI Coffee - Backend
 > GFI Coffee - Backend is a Rest API made with Symfony.  
 > This API aims to make Nespresso Pro coffee capsules orders easier at GFI.

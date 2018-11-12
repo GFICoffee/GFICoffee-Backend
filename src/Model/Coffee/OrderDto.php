@@ -2,6 +2,7 @@
 namespace App\Model\Coffee;
 
 use App\Entity\User;
+use App\Model\User\UserModel;
 use JMS\Serializer\Annotation as Serializer;
 
 class OrderDto
@@ -13,8 +14,8 @@ class OrderDto
     protected $id;
 
     /**
-     * @var User|null
-     * @Serializer\Type("App\Entity\User")
+     * @var UserModel|null
+     * @Serializer\Type("App\Model\User\UserModel")
      */
     protected $user;
 
@@ -41,17 +42,17 @@ class OrderDto
     }
 
     /**
-     * @return User|null
+     * @return UserModel|null
      */
-    public function getUser(): ?User
+    public function getUser(): ?UserModel
     {
         return $this->user;
     }
 
     /**
-     * @param User|null $user
+     * @param UserModel|null $user
      */
-    public function setUser(?User $user): void
+    public function setUser(?UserModel $user): void
     {
         $this->user = $user;
     }
