@@ -19,6 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 
@@ -178,5 +179,92 @@ class OrdersController extends AbstractController
             return $this->orderService->convertToDto($order, true);
         }, $orders);
         return $ordersDto;
+    }
+
+    /**
+     * Exporte toutes les commandes en attente au format CSV.
+     *
+     * @View()
+     * @Get("/api/orders/waiting-all/export")
+     * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @param Request $request
+     * @return StreamedResponse
+     */
+    public function exportAllWaitingOrdersAction(Request $request)
+    {
+        $orderRepo = $this->em->getRepository(Order::class);
+        /** @var Order[] $orders */
+        $orders = $orderRepo->findWaitingOrders();
+
+        $filename = 'export_commandes_' . date('d_m_Y') . '.csv';
+        $response = new StreamedResponse();
+        $response->setCallback(function () use ($orders) {
+            $handle = fopen('php://output', 'w+');
+            // Nom des colonnes du CSV
+
+            /** @var string[] $users */
+            $users = array_unique(array_map(function (Order $order) {
+                return $order->getUser()->getUsername();
+            }, $orders));
+            $columns = array('', '', '');
+            foreach ($users as $user) {
+                $columns[] = $user;
+            }
+
+            fputcsv($handle, array_map('utf8_decode', array_map(function (string $column){
+                $explode = explode('@', $column);
+                $namePart = explode('.', $explode[0]);
+                return join(' ', $namePart) . "";
+            }, $columns)), ';');
+
+            $coffeeList = [];
+            foreach ($orders as $order) {
+                /** @var OrderedCoffee $orderedCoffee */
+                foreach ($order->getItems()->toArray() as $orderedCoffee) {
+                    $coffeeList[] = $orderedCoffee->getCoffee();
+                }
+            }
+
+            $coffeeList = array_unique($coffeeList, SORT_REGULAR );
+            $lines = [];
+            $mergedOrders = $this->orderService->mergeOrdersPerUsers($orders);
+            /** @var Coffee $coffee */
+            foreach ($coffeeList as $coffee) {
+                $line1 = array($coffee->getName(), 'Boîte (x50)', $coffee->getUnitPrice());
+                $line2 = array($coffee->getDesc(), 'Tube (x30)', $coffee->getUnitPrice());
+                /** @var Order $order */
+                foreach ($mergedOrders as $order) {
+                    /** @var OrderedCoffee $orderedCoffee */
+                    $found = false;
+                    foreach ($order->getItems() as $orderedCoffee) {
+                        if ($orderedCoffee->getCoffee() === $coffee) {
+                            $line1[] = $orderedCoffee->getQuantity50() ? $orderedCoffee->getQuantity50() : '';
+                            $line2[] = $orderedCoffee->getQuantity30() ? $orderedCoffee->getQuantity30() : '';
+                            $found = true;
+                        }
+                    }
+                    if (!$found) {
+                        $line1[] = '';
+                        $line2[] = '';
+                    }
+                }
+                $lines[] = $line1;
+                $lines[] = $line2;
+                $lines[] = [];
+            }
+
+            //Champs
+            foreach ($lines as $line) {
+                fputcsv($handle, array_map('utf8_decode', $line), ';');
+            }
+
+            fclose($handle);
+        });
+
+        $response->setStatusCode(200);
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
+        return $response;
     }
 }

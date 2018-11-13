@@ -10,6 +10,11 @@ use App\Model\User\UserModel;
 
 class OrderService
 {
+    /**
+     * @param Order $order
+     * @param bool $showUser
+     * @return OrderDto
+     */
     function convertToDto (Order $order, bool $showUser = false): OrderDto
     {
         $dto = new OrderDto();
@@ -34,5 +39,65 @@ class OrderService
         }
 
         return $dto;
+    }
+
+    /**
+     * @param Order[] $orders
+     * @return Order[]
+     */
+    function mergeOrdersPerUsers (array $orders): array {
+        /**
+         * @param OrderedCoffee[] $list
+         * @param OrderedCoffee $coffee
+         * @return bool|mixed
+         */
+        function userHasAlreadyOrderedCoffee (array $list, OrderedCoffee $coffee) {
+            foreach ($list as $key => $item) {
+                if ($item->getCoffee()->getId() === $coffee->getCoffee()->getId()) {
+                    return $key;
+                }
+            }
+            return false;
+        }
+        /** @var Order[] $mergedOrders */
+        $mergedOrders = array();
+
+        /** @var Order $order */
+        foreach ($orders as $order) {
+            /** @var bool|integer $userHasAlreadyOrdered */
+            $userHasAlreadyOrdered = false;
+            /** @var Order $mergedOrder */
+            foreach ($mergedOrders as $key => $mergedOrder) {
+                if ($order->getUser()->getUsername() === $mergedOrder->getUser()->getUsername()) {
+                    $userHasAlreadyOrdered = $key;
+                    break;
+                }
+            }
+
+            if ($userHasAlreadyOrdered === false) {
+                $orderToAdd = $order;
+                $orderToAdd->setItems(is_array($orderToAdd->getItems()) ? $orderToAdd->getItems() : $orderToAdd->getItems()->toArray());
+                $mergedOrders[] = $orderToAdd;
+            } else {
+                /** @var OrderedCoffee[] $newList */
+                $newList = $mergedOrders[$userHasAlreadyOrdered]->getItems();
+                /** @var OrderedCoffee[] $items */
+                $items = $order->getItems()->toArray();
+                foreach ($newList as $item) {
+                    $index = userHasAlreadyOrderedCoffee($items, $item);
+                    if ($index !== false) {
+                        $item->setQuantity30($item->getQuantity30() + $items[$index]->getQuantity30());
+                        $item->setQuantity50($item->getQuantity50() + $items[$index]->getQuantity50());
+                        unset($items[$index]);
+                    }
+                }
+
+                if (count($items)) {
+                    array_push($newList, ...$items);
+                }
+                $mergedOrders[$userHasAlreadyOrdered]->setItems($newList);
+            }
+        }
+        return $mergedOrders;
     }
 }
