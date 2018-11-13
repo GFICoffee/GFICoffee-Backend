@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Coffee
 {
-    function __construct(?string $img, ?string $name, ?string $desc, ?int $intensity, ?CoffeeType $type, ?float $unitPrice) {
+    function __construct(?string $img = NULL, ?string $name = NULL, ?string $desc = NULL, ?int $intensity = NULL, ?CoffeeType $type = NULL, ?float $unitPrice = NULL) {
         $this->setImg($img);
         $this->setName($name);
         $this->setDesc($desc);

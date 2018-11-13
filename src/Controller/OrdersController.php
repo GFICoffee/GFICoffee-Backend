@@ -229,6 +229,7 @@ class OrdersController extends AbstractController
             $coffeeList = array_unique($coffeeList, SORT_REGULAR );
             $lines = [];
             $mergedOrders = $this->orderService->mergeOrdersPerUsers($orders);
+            $totals = array('Total', '', '');
             /** @var Coffee $coffee */
             foreach ($coffeeList as $coffee) {
                 $line1 = array($coffee->getName(), 'Boîte (x50)', $coffee->getUnitPrice());
@@ -254,11 +255,23 @@ class OrdersController extends AbstractController
                 $lines[] = [];
             }
 
+            $totalGlobal = 0;
+            foreach ($mergedOrders as $mergedOrder) {
+                $total = 0;
+                foreach ($mergedOrder->getItems() as $item) {
+                    $total += ($item->getQuantity30() * 30 * $item->getCoffee()->getUnitPrice()) + ($item->getQuantity50() * 50 * $item->getCoffee()->getUnitPrice());
+                }
+
+                $totalGlobal += $total;
+                $totals[] = str_replace('.', ',', $total);
+            }
+
             //Champs
             foreach ($lines as $line) {
                 fputcsv($handle, array_map('utf8_decode', $line), ';');
             }
-
+            fputcsv($handle, array_map('utf8_decode', $totals), ';');
+            fputcsv($handle, array_map('utf8_decode', array('Total global', str_replace('.', ',', $totalGlobal))), ';');
             fclose($handle);
         });
 
