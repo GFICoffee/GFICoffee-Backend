@@ -9,6 +9,15 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Coffee
 {
+    function __construct(?string $img, ?string $name, ?string $desc, ?int $intensity, ?CoffeeType $type, ?float $unitPrice) {
+        $this->setImg($img);
+        $this->setName($name);
+        $this->setDesc($desc);
+        $this->setIntensity($intensity);
+        $this->setType($type);
+        $this->setUnitPrice($unitPrice);
+    }
+
     /**
      * @ORM\Id()
      * @ORM\Column(type="integer")

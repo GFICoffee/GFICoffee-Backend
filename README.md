@@ -17,6 +17,9 @@ php bin/console doctrine:schema:create
 # update database structure
 php bin/console doctrine:schema:update --force
 
+# Charger les fixtures
+php bin/console doctrine:fixtures:load
+
 # serve API at localhost:3000
 php bin/console server:run
 ```

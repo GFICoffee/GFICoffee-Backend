@@ -9,6 +9,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CoffeeType
 {
+    function __construct($type = NULL) {
+        $this->setType($type);
+    }
+
     /**
      * @ORM\Id()
      * @ORM\Column(type="integer")
