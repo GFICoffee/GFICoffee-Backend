@@ -5,6 +5,15 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
+    oauth:
+        appID: '%env(OAUTH_APP_ID)%'
+        appPassword: '%env(OAUTH_APP_PASSWORD)%'
+        redirectURI: '%env(OAUTH_REDIRECT_URI)%'
+        scopes: '%env(OAUTH_SCOPES)%'
+        authority: '%env(OAUTH_AUTHORITY)%'
+        authorizeEndpoint: '%env(OAUTH_AUTHORIZE_ENDPOINT)%'
+        tokenEndpoint: '%env(OAUTH_TOKEN_ENDPOINT)%'
+        userinfoEndpoint: '%env(OAUTH_USERINFO_ENDPOINT)%'
 
 services:
     # default configuration for services in *this* file

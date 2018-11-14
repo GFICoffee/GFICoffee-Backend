@@ -110,6 +110,15 @@
     "friendsofsymfony/user-bundle": {
         "version": "v2.1.2"
     },
+    "guzzlehttp/guzzle": {
+        "version": "6.3.3"
+    },
+    "guzzlehttp/promises": {
+        "version": "v1.3.1"
+    },
+    "guzzlehttp/psr7": {
+        "version": "1.4.2"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -133,6 +142,9 @@
     },
     "lcobucci/jwt": {
         "version": "3.2.4"
+    },
+    "league/oauth2-client": {
+        "version": "2.3.0"
     },
     "lexik/jwt-authentication-bundle": {
         "version": "2.5",
@@ -193,6 +205,9 @@
     },
     "psr/container": {
         "version": "1.0.0"
+    },
+    "psr/http-message": {
+        "version": "1.0.1"
     },
     "psr/link": {
         "version": "1.0.0"
