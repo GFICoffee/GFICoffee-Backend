@@ -27,7 +27,6 @@ class AppFixtures extends Fixture
         /*
          * Création des Coffees
          */
-
         $coffees = array(
             new Coffee("/static/coffee/ristretto-intenso.png", "Ristretto Intenso", "Exceptionnelement intense et onctueux", 12, $coffeeTypes[0], 0.3),
             new Coffee("/static/coffee/espresso-forte.png", "Espresso Forte", "Rond et équilibré", 7, $coffeeTypes[1], 0.3),

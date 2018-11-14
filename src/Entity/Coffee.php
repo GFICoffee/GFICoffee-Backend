@@ -39,7 +39,7 @@ class Coffee
 
     /**
      * @var string|null
-     * @ORM\Column(nullable=true)
+     * @ORM\Column(nullable=true, name="description")
      */
     protected $desc;
 
