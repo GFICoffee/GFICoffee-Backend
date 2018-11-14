@@ -66,11 +66,11 @@ class MainController extends AbstractController
 
     /**
      * @View()
-     * @Get("/api/test")
+     * @Get("/api/login")
      *
-     * @return mixed
+     * @return RedirectResponse
      */
-    public function testAction()
+    public function loginAction()
     {
         return new RedirectResponse($this->authService->getAuthorizationUrl());
     }
@@ -79,7 +79,7 @@ class MainController extends AbstractController
      * @View()
      * @Get("/api/authorize")
      *
-     * @return mixed
+     * @return string
      */
     public function authorizeAction(Request $request)
     {
