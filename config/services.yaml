@@ -14,6 +14,7 @@ parameters:
         authorizeEndpoint: '%env(OAUTH_AUTHORIZE_ENDPOINT)%'
         tokenEndpoint: '%env(OAUTH_TOKEN_ENDPOINT)%'
         userinfoEndpoint: '%env(OAUTH_USERINFO_ENDPOINT)%'
+    webappUrl: '%env(WEBAPP_URL)%'
 
 services:
     # default configuration for services in *this* file

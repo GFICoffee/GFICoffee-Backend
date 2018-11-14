@@ -8,6 +8,7 @@ use App\Service\AuthService;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations\Route;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -25,19 +26,21 @@ class MainController extends AbstractController
     /** @var AuthService */
     private $authService;
 
-    /**
-     * @var JWTTokenManagerInterface
-     */
+    /** @var JWTTokenManagerInterface */
     private $tokenManager;
+
+    /** @var ParameterBagInterface */
+    private $parameterBag;
 
     public function __construct(EntityManagerInterface $em,
                                 AuthService $authService,
-    JWTTokenManagerInterface $tokenManager
-)
+                                JWTTokenManagerInterface $tokenManager,
+                                ParameterBagInterface $parameterBag)
     {
         $this->em = $em;
         $this->authService = $authService;
         $this->tokenManager = $tokenManager;
+        $this->parameterBag = $parameterBag;
     }
 
     /**
@@ -93,22 +96,34 @@ class MainController extends AbstractController
             return $randomString;
         }
 
+        function getMailDomain(string $mail)
+        {
+            $explode = explode('@', $mail);
+            return count($explode) === 2 ? $explode[1] : '';
+        }
+
         $oauthCode = $request->get('code');
         $this->authService->setCode($oauthCode);
         $userInfo = $this->authService->getUserInfo();
+
+
 
         // Find user from sub, create if doesn't exists.
         $userRepo = $this->em->getRepository(User::class);
         /** @var UserInterface|null $user */
         $user = $userRepo->findOneBySub($userInfo['sub']);
 
+        if (!array_key_exists('email', $userInfo) || getMailDomain($userInfo['email']) !== 'gfi.fr') {
+            throw new \Exception('Vous devez utiliser une adresse email GFI pour vous connecter !');
+        }
+
         if (!$user) {
             $user = new User();
             $user->setSub($userInfo['sub']);
-            $user->setUsername($userInfo['email']);
-            $user->setEmail($userInfo['email']);
-            $user->setFirstname($userInfo['given_name']);
-            $user->setLastname($userInfo['family_name']);
+            $user->setUsername(array_key_exists('email', $userInfo) ? $userInfo['email'] : '');
+            $user->setEmail(array_key_exists('email', $userInfo) ? $userInfo['email'] : '');
+            $user->setFirstname(array_key_exists('given_name', $userInfo) ? $userInfo['given_name'] : '');
+            $user->setLastname(array_key_exists('family_name', $userInfo) ? $userInfo['family_name'] : '');
             $user->setRoles(array('ROLE_USER'));
             $user->setPlainPassword(generateRandomString());
         }
@@ -117,6 +132,8 @@ class MainController extends AbstractController
         $this->em->persist($user);
         $this->em->flush();
         $jwt = $this->tokenManager->create($user);
-        return $jwt;
+
+        $webappUrl = $this->parameterBag->get('webappUrl');
+        return new RedirectResponse($webappUrl . "?token=" . $jwt);;
     }
 }
